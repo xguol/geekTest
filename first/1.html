@@ -1,0 +1,219 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-28 11:34:40
+ * @LastEditTime: 2021-05-18 20:49:46
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \drill\week1\tictac\1.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三子棋</title>
+    <style>
+        .cell {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            vertical-align: middle;
+            text-align: center;
+            line-height: 100px;
+            border: 2px solid #fff;
+            font-size: 50px;
+            background-color: aqua;
+        }
+    </style>
+</head>
+<body>
+    <div id="box"></div>
+</body>
+</html>
+<script>
+    let arr = [
+        [0,0,0],
+        [0,0,0],
+        [0,0,0]
+    ]
+    let box =  document.getElementById('box')
+    let color = 1
+    function show() {
+        box.innerHTML = ''
+        for (let i = 0; i < arr.length; i++) {
+            let arrChild = arr[i]
+            for (let j = 0; j < arrChild.length; j++) {
+                let cell = document.createElement('div') // ⭕ ❌
+                cell.classList.add('cell')
+                cell.innerText = arr[i][j] == 1 ? '⭕' :
+                                arr[i][j] == 2 ? '❌' : ''
+                cell.addEventListener('click', () => move(i, j))
+                box.appendChild(cell)
+            }
+            box.appendChild(document.createElement('br'))
+        }
+    }
+        
+    function move (x, y) {
+        if (arr[x][y]) {
+            return
+        }
+        arr[x][y] = color
+        if(!deal()) {
+            return
+        }
+        color = 3 - color
+        show()
+        computerMove()
+        if (willWin(arr, color)) {
+            console.log(color === 2 ? '❌要赢了' : '⭕要赢了');
+        }
+    }
+    function deal() {
+        if (check(arr, color)) {
+            // 重置棋盘
+            reset()
+            alert(color === 2 ? '❌赢了' : '⭕赢了')
+            return false
+        }
+        if (all(arr)) {
+            alert('和棋了')
+            // 重置棋盘
+            reset()
+            return false
+        }
+        return true
+    }
+    function computerMove() {
+        let choice = bestChoice(arr, color)
+        if (choice.point) {
+            arr[choice.point[0]][choice.point[1]] = color
+        }
+        if(!deal()) {
+            return
+        }
+        color = 3 - color
+        show()
+    }
+    function reset() {
+        arr = [
+            [0,0,0],
+            [0,0,0],
+            [0,0,0]
+        ]
+        show()
+    }
+    function all(arr) {
+        let bool = true
+        for (let i = 0; i < 3; i++) {
+           for (let j = 0; j < 3; j++) {
+                if (!arr[i][j]) {
+                    bool = false
+                }
+           }
+        }
+        return bool
+     }
+    function clone(obj) { 
+        return JSON.parse(JSON.stringify(obj))
+    }
+    function check (arr, color) {
+        // 三个横排是否相同
+        for (let i = 0; i < 3; i++) { 
+            let bool = true
+            for (let j = 0; j < 3; j++) {
+               if (arr[i][j] !== color) {
+                   bool = false
+               }
+            }
+            if (bool) {
+                return bool
+            }
+        }
+        // 三个竖排是否相同
+        for (let i = 0; i < 3; i++) { 
+            let bool = true
+            for (let j = 0; j < 3; j++) {
+               if (arr[j][i] !== color) {
+                   bool = false
+               }
+            }
+            if (bool) {
+                return bool
+            }
+        }
+        // 正斜线是否相同
+        {
+            let bool = true
+            for (let i = 0; i < 3; i++) {
+                if (arr[i][2 - i] !== color) {
+                    bool = false
+                }
+            }
+            if (bool) {
+                return bool
+            }
+        }
+        // 反斜线是否相同
+        {
+            let bool = true
+            for (let i = 0; i < 3; i++) {
+                if (arr[i][i] !== color) {
+                    bool = false
+                }
+            }
+            if (bool) {
+                return bool
+            }
+        }
+    }
+    function willWin (arr, color) { 
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (arr[i][j]) {
+                    continue
+                }
+                let tem = clone(arr)
+                tem[i][j] = color
+                if (check(tem, color)) {
+                    return [i, j]
+                }
+            }
+        }
+        return null
+    }
+    function bestChoice(arr, color) {
+        let p;
+        if(p = willWin(arr, color)) {
+            return {
+                point: p,
+                result: 1
+            }
+        }
+        let result = -2
+        let point = null
+        outer: for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (arr[i][j]) {
+                    continue
+                }
+                let tem = clone(arr)
+                tem[i][j] = color
+                let obj = bestChoice(tem, 3 - color)
+                if (-obj.result >= result) {
+                    result = -obj.result
+                    point = [i, j]
+                }
+                if (result == 1) {
+                    break outer
+                }
+            }
+        }
+        return {
+            point: point,
+            result: point ? result : 0
+        }
+    }
+    // 默认渲染棋盘
+    show()
+</script>
