@@ -1,0 +1,111 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-05-18 20:55:48
+ * @LastEditTime: 2021-05-19 16:26:02
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \geekTest\first\异步.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>异步</title>
+    <style>
+        div{
+            width: 100px;
+            height: 100px;
+            display: inline-block;
+            margin: 30px;
+            border-radius: 50px;
+            background: grey;
+        }
+        .green.light{
+            background: green;
+        }
+        .yellow.light{
+            background: yellow;
+        }
+        .red.light{
+            background: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="green"></div>
+    <div class="red"></div>
+    <div class="yellow"></div>
+    <button id="next">next</button>
+</body>
+<script>
+    let Div = document.querySelectorAll('div');
+    function green() {
+        for (let i = 0; i < Div.length; i++) {
+            Div[i].classList.remove('light')
+        }
+        document.getElementsByClassName('green')[0].classList.add('light')
+    }
+    function red() {
+        for (let i = 0; i < Div.length; i++) {
+            Div[i].classList.remove('light')
+        }
+        document.getElementsByClassName('red')[0].classList.add('light')
+    }
+    function yellow() {
+        for (let i = 0; i < Div.length; i++) {
+            Div[i].classList.remove('light')
+        }
+        document.getElementsByClassName('yellow')[0].classList.add('light')
+    }
+    // function begin() {
+    //     green()
+    //     setTimeout(function () {
+    //             red()
+    //         setTimeout(function () {
+    //                 yellow()
+    //             setTimeout(function () {
+    //                 begin()
+    //             }, 200)
+    //         }, 500)
+    //     }, 1000)
+    // }
+    function sleep(time) {
+        return new Promise((resolve, reject) => {
+            console.log(resolve);
+            setTimeout(resolve, time)
+        })
+    }
+    // function begin() {
+    //     green()
+    //     sleep(1000).then(() => {
+    //         yellow()
+    //         return sleep(200)
+    //     }).then(() => {
+    //         red()
+    //         return sleep(500)
+    //     }).then(() => {
+    //         begin()
+    //     })
+    // }
+    async function happen(ele, eventName) {
+        return new Promise((resolve, reject) => {
+            ele.addEventListener(eventName, resolve, {once: true})
+        })
+    }
+    async function begin() {
+        while(true) {
+            green()
+            // await sleep(1000)
+            await happen(document.getElementById('next'), 'click')
+            yellow()
+            // await sleep(200)
+            await happen(document.getElementById('next'), 'click')
+            red()
+            // await sleep(500)
+            await happen(document.getElementById('next'), 'click')
+        }
+    }
+</script>
+</html>
